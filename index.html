@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Questi due colori stanno bene insieme?</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='8' height='16' fill='%23333'/%3E%3Crect x='8' width='8' height='16' fill='%23ccc'/%3E%3C/svg%3E">
+<style>
+  /*
+   * Vincolo sperimentale: sfondo grigio medio (L* = 50) e interfaccia solo in grigi neutri,
+   * così nessun colore dell'interfaccia altera la percezione delle coppie.
+   * Testo nero su #777 = contrasto ~4.7:1.
+   */
+  :root {
+    --bg: #777777;
+    --ink: #000;
+    --paper: #ececec;     /* superficie dei controlli */
+    --paper-hi: #fff;
+    --rule: #4d4d4d;      /* filetti e bordi */
+    --font: "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --display: "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 400 1rem/1.55 var(--font);
+    display: grid; place-items: center; min-height: 100vh;
+  }
+  main { width: min(920px, 92vw); padding: 24px 0 56px; }
+  [hidden] { display: none !important; }
+
+  h1 { font: 600 clamp(1.6rem, 3.2vw, 2.2rem)/1.15 var(--display); letter-spacing: -0.01em; margin: 0 0 20px; }
+  p { margin: 0 0 14px; max-width: 64ch; }
+
+  button {
+    font: 500 .95rem/1.2 var(--font); color: var(--ink); cursor: pointer;
+    background: var(--paper); border: 1px solid var(--rule); border-radius: 2px; padding: 11px 20px;
+  }
+  button:hover { background: var(--paper-hi); }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  button:disabled { opacity: .35; cursor: default; background: var(--paper); }
+  .primary { background: var(--ink); color: var(--paper-hi); border-color: var(--ink); }
+  .primary:hover { background: #2a2a2a; }
+  .link { background: none; border: 0; padding: 6px 0; text-decoration: underline; text-underline-offset: 3px; }
+  .link:hover, .link:disabled { background: none; }
+
+  /* Lingua */
+  .lang { display: flex; justify-content: flex-end; gap: 12px; font-size: .85rem; margin-bottom: 24px; }
+  .lang button { background: none; border: 0; padding: 4px 0; font-size: inherit; }
+  .lang button[aria-pressed="true"] { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* Intro */
+  .intro { display: grid; grid-template-columns: 1fr 260px; gap: 48px; align-items: start; }
+  .notes { border-top: 2px solid var(--ink); padding-top: 12px; font-size: .9rem; }
+  .notes h2 { font: 600 .95rem/1.3 var(--font); margin: 0 0 6px; }
+  .notes ul { margin: 0 0 16px; padding-left: 18px; }
+  .start { display: flex; gap: 10px; align-items: end; margin-top: 26px; flex-wrap: wrap; }
+  .start label { display: grid; gap: 4px; font-size: .9rem; }
+  .start input { font: inherit; width: 240px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 2px; background: var(--paper-hi); }
+  .error { font-size: .9rem; min-height: 1.4em; margin-top: 8px; }
+
+  /* Prova */
+  .progress { height: 3px; background: rgba(0,0,0,.18); margin-bottom: 36px; }
+  .progress span { display: block; height: 100%; background: var(--ink); width: 0; transition: width .2s ease-out; }
+  .pair { display: flex; justify-content: center; margin-bottom: 40px; }
+  .pair div { width: min(34vw, 38vh); aspect-ratio: 1; }
+
+  .scale { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .side h2 { font: 600 .95rem/1.3 var(--font); margin: 0 0 8px; }
+  .side.pos h2 { text-align: right; }
+  .seg { display: grid; grid-template-columns: repeat(5, minmax(max-content, 1fr)); border: 1px solid var(--rule); border-radius: 2px; }
+  .seg button { border: 0; border-radius: 0; padding: 14px 6px; font-size: .82rem; white-space: nowrap; }
+  .seg button + button { border-left: 1px solid var(--rule); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper-hi); }
+
+  .bar { display: flex; justify-content: space-between; align-items: center; margin-top: 26px; font-size: .9rem; }
+
+  @media (max-width: 720px) {
+    .intro { grid-template-columns: 1fr; gap: 24px; }
+    main { padding-top: 16px; }
+    .progress { margin-bottom: 24px; }
+    .pair { margin-bottom: 24px; }
+    .pair div { width: min(42vw, 30vh); }
+    /* su mobile: due colonne verticali, "Appena" in alto, "Estremamente" in basso */
+    .seg { display: flex; flex-direction: column; }
+    .neg .seg { flex-direction: column-reverse; }
+    .seg button { padding: 12px 6px; }
+    .seg button + button { border-left: 0; border-top: 1px solid var(--rule); }
+    .neg .seg button + button { border-top: 0; border-bottom: 1px solid var(--rule); }
+  }
+  @media (prefers-reduced-motion: reduce) { .progress span { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <nav class="lang" id="lang" aria-label="Lingua / Language">
+    <button data-lang="it" lang="it">Italiano</button>
+    <button data-lang="en" lang="en">English</button>
+  </nav>
+
+  <section id="intro" class="intro">
+    <div>
+      <h1 data-t="title"></h1>
+      <p data-t="lead1"></p>
+      <p data-t="lead2"></p>
+      <div class="start">
+        <label for="name"><span data-t="nameLabel"></span>
+          <input id="name" autocomplete="off" maxlength="40" aria-describedby="name-error">
+        </label>
+        <button id="start" class="primary" data-t="start"></button>
+      </div>
+      <p class="error" id="name-error" aria-live="polite"></p>
+    </div>
+    <aside class="notes">
+      <h2 data-t="beforeH"></h2>
+      <ul data-t="before"></ul>
+      <h2 data-t="howH"></h2>
+      <p data-t="how"></p>
+      <p data-t="resume"></p>
+      <h2 data-t="privacyH"></h2>
+      <p data-t="privacy"></p>
+    </aside>
+  </section>
+
+  <section id="trial" hidden>
+    <div class="progress" role="progressbar" aria-valuemin="0" id="progress"><span id="progress-fill"></span></div>
+    <div class="pair" role="img" id="pair"><div id="left"></div><div id="right"></div></div>
+    <div class="scale">
+      <div class="side neg"><h2 data-t="neg"></h2><div class="seg" id="neg"></div></div>
+      <div class="side pos"><h2 data-t="pos"></h2><div class="seg" id="pos"></div></div>
+    </div>
+    <div class="bar">
+      <button id="back" class="link" data-t="back"></button>
+      <span id="count" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section id="done" hidden>
+    <h1 data-t="doneH"></h1>
+    <p id="status" aria-live="polite"></p>
+    <div class="start">
+      <button id="retry" class="primary" data-t="retry" hidden></button>
+      <button id="download" data-t="download"></button>
+      <button id="review" class="link" data-t="review"></button>
+    </div>
+  </section>
+</main>
+<script>
+const TRIALS = [["001", "#1F5F66", "#5A3A22"], ["002", "#C0272D", "#EFE6D2"], ["003", "#3C3C3C", "#6D1A2A"], ["004", "#EFE6D2", "#5E6B3A"], ["005", "#D8C3A5", "#5A3A22"], ["006", "#111111", "#3C3C3C"], ["007", "#EFE6D2", "#A7C7E7"], ["008", "#1F2A44", "#EFE6D2"], ["009", "#BEBEBE", "#A7C7E7"], ["010", "#5E6B3A", "#5A3A22"], ["011", "#EFE6D2", "#E8B4C0"], ["012", "#5E6B3A", "#6D1A2A"], ["013", "#5A3A22", "#D4A62A"], ["014", "#C0272D", "#5E6B3A"], ["015", "#2E5E3E", "#E8B4C0"], ["016", "#E8B4C0", "#B4532A"], ["017", "#EFE6D2", "#6D1A2A"], ["018", "#1F5F66", "#C19A6B"], ["019", "#B4532A", "#F5F5F2"], ["020", "#3B5B85", "#5A3A22"], ["021", "#D4A62A", "#111111"], ["022", "#3B5B85", "#F5F5F2"], ["023", "#A7C7E7", "#E8B4C0"], ["024", "#C0272D", "#F5F5F2"], ["025", "#5E6B3A", "#3C3C3C"], ["026", "#3C3C3C", "#111111"], ["027", "#F5F5F2", "#5B3A6B"], ["028", "#3C3C3C", "#EFE6D2"], ["029", "#6D1A2A", "#1F5F66"], ["030", "#F5F5F2", "#3C3C3C"], ["031", "#111111", "#1F5F66"], ["032", "#B4532A", "#C19A6B"], ["033", "#3C3C3C", "#5B3A6B"], ["034", "#D4A62A", "#BEBEBE"], ["035", "#1F5F66", "#2E5E3E"], ["036", "#5B3A6B", "#5A3A22"], ["037", "#A7C7E7", "#6D1A2A"], ["038", "#D4A62A", "#1F5F66"], ["039", "#E8B4C0", "#1F5F66"], ["040", "#2E5E3E", "#D8C3A5"], ["041", "#3C3C3C", "#E8B4C0"], ["042", "#1F5F66", "#6D1A2A"], ["043", "#6D1A2A", "#D4A62A"], ["044", "#D8C3A5", "#B4532A"], ["045", "#D8C3A5", "#3C3C3C"], ["046", "#E8B4C0", "#6D1A2A"], ["047", "#2E5E3E", "#D4A62A"], ["048", "#F5F5F2", "#EFE6D2"], ["049", "#E8B4C0", "#EFE6D2"], ["050", "#F5F5F2", "#E8B4C0"], ["051", "#B4532A", "#3B5B85"], ["052", "#111111", "#BEBEBE"], ["053", "#3C3C3C", "#C0272D"], ["054", "#5E6B3A", "#EFE6D2"], ["055", "#C19A6B", "#6D1A2A"], ["056", "#1F5F66", "#D4A62A"], ["057", "#E8B4C0", "#D8C3A5"], ["058", "#F5F5F2", "#2E5E3E"], ["059", "#111111", "#2E5E3E"], ["060", "#2E5E3E", "#1F2A44"], ["061", "#3B5B85", "#1F2A44"], ["062", "#3B5B85", "#6D1A2A"], ["063", "#1F5F66", "#B4532A"], ["064", "#5A3A22", "#1F5F66"], ["065", "#2E5E3E", "#3B5B85"], ["066", "#1F2A44", "#D8C3A5"]];
+const SUBMIT_URL = "https://script.google.com/macros/s/AKfycby2PCSrR5DHhyDoQcKBDFWrvCKLniNqx6hqSPOjyHPtSbC8WWzy6igZUo7tMnB9ZONP/exec";   // app web Google Apps Script; vuoto = solo download
+const $ = id => document.getElementById(id);
+
+const TEXT = {
+  it: {
+    title: "Questi due colori stanno bene insieme?",
+    lead1: "Ti mostreremo <b>{n}</b> coppie di colori, una alla volta, come due capi d'abbigliamento accostati. Per ognuna dicci quanto la trovi <b>armoniosa</b>, cioè quanto i due colori, insieme, danno un effetto gradevole.",
+    lead2: "Giudica la coppia, non il colore che ti piace di più. Non ci sono risposte giuste: rispondi d'istinto, in pochi secondi. In tutto servono circa {m} minuti.",
+    nameLabel: "Un soprannome o le tue iniziali",
+    start: "Inizia",
+    nameErr: "Scrivi un soprannome per iniziare.",
+    beforeH: "Prima di iniziare",
+    before: "<li>Luminosità dello schermo alta</li><li>Filtro luce blu, modalità notte e True Tone spenti</li><li>Meglio un computer che il telefono</li>",
+    howH: "Come si risponde",
+    how: "La scala ha due lati, <i>stonano</i> e <i>stanno bene</i>, con cinque gradi ciascuno. Non c'è una risposta neutra: scegli sempre un lato.",
+    resume: "Puoi chiudere e riprendere più tardi: le risposte restano salvate in questo browser.",
+    privacyH: "Dati raccolti",
+    privacy: "Solo il soprannome e i voti, usati a scopo di ricerca. Non scrivere il tuo nome completo.",
+    neg: "Stonano", pos: "Stanno bene",
+    grades: ["Appena", "Leggermente", "Abbastanza", "Molto", "Estremamente"],
+    pair: "Coppia di colori", progress: "Avanzamento",
+    back: "Coppia precedente",
+    count: "{i} di {n}",
+    doneH: "Finito. Grazie!",
+    sending: "Invio delle risposte in corso…",
+    sent: "Risposte inviate. Puoi chiudere la pagina.",
+    failed: "Invio non riuscito. Riprova, oppure scarica il file e mandalo a chi ti ha inviato il link.",
+    manual: "Scarica il file con le tue risposte e mandalo a chi ti ha inviato il link.",
+    retry: "Riprova l'invio",
+    download: "Scarica le risposte",
+    review: "Rivedi l'ultima coppia",
+  },
+  en: {
+    title: "Do these two colours go well together?",
+    lead1: "You will see <b>{n}</b> pairs of colours, one at a time, like two pieces of clothing worn together. For each pair, tell us how <b>harmonious</b> it looks: how pleasant the two colours are together.",
+    lead2: "Judge the pair, not which colour you like more. There are no right answers: go with your first impression, in a few seconds. It takes about {m} minutes in total.",
+    nameLabel: "A nickname or your initials",
+    start: "Start",
+    nameErr: "Enter a nickname to start.",
+    beforeH: "Before you start",
+    before: "<li>Screen brightness up</li><li>Blue-light filter, night mode and True Tone off</li><li>A computer works better than a phone</li>",
+    howH: "How to answer",
+    how: "The scale has two sides, <i>clash</i> and <i>go well</i>, with five levels each. There is no neutral answer: always pick a side.",
+    resume: "You can close the page and continue later: your answers stay saved in this browser.",
+    privacyH: "What we collect",
+    privacy: "Only your nickname and your ratings, for research purposes. Please don't use your full name.",
+    neg: "Clash", pos: "Go well",
+    grades: ["Barely", "Slightly", "Fairly", "Very", "Extremely"],
+    pair: "Colour pair", progress: "Progress",
+    back: "Previous pair",
+    count: "{i} of {n}",
+    doneH: "Done. Thank you!",
+    sending: "Sending your answers…",
+    sent: "Answers sent. You can close this page.",
+    failed: "Sending failed. Try again, or download the file and send it to whoever shared this link with you.",
+    manual: "Download the file with your answers and send it to whoever shared this link with you.",
+    retry: "Try again",
+    download: "Download answers",
+    review: "Review the last pair",
+  },
+};
+let lang = localStorage.getItem("armonia_lang") || (navigator.language.startsWith("it") ? "it" : "en");
+let name, key, votes, i, status = "";
+const t = (k, vars = {}) => TEXT[lang][k].replace(/\{(\w)\}/g, (_, v) => vars[v]);
+
+if (!TRIALS.length) {
+  document.querySelector("main").innerHTML =
+    "<h1>Pagina non valida</h1><p>Questo è il modello vuoto. Genera la pagina con <code>python phase0.py stimuli</code> " +
+    "e pubblica <code>site/index.html</code>.</p>";
+  throw new Error("nessuna coppia");
+}
+
+// Valori come in Ou & Luo (2006): −5…−1 disarmonico, +1…+5 armonico, niente zero.
+// Intensità crescente verso l'esterno: Estremamente … Appena | Appena … Estremamente
+const scaleButtons = [];
+for (const v of [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]) {
+  const b = document.createElement("button");
+  b.dataset.v = v;
+  b.onclick = () => { votes[TRIALS[i][0]] = v; save(); show(i + 1); };
+  $(v < 0 ? "neg" : "pos").append(b);
+  scaleButtons.push(b);
+}
+
+function render() {
+  document.documentElement.lang = lang;
+  document.title = t("title");
+  const vars = { n: TRIALS.length, m: Math.max(1, Math.round(TRIALS.length * 6 / 60)) };
+  for (const el of document.querySelectorAll("[data-t]")) el.innerHTML = t(el.dataset.t, vars);
+  for (const b of document.querySelectorAll("[data-lang]")) b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+  for (const b of scaleButtons) {
+    const v = +b.dataset.v;
+    b.textContent = TEXT[lang].grades[Math.abs(v) - 1];
+    b.setAttribute("aria-label", `${b.textContent} — ${t(v < 0 ? "neg" : "pos")}`);
+  }
+  $("pair").setAttribute("aria-label", t("pair"));
+  $("progress").setAttribute("aria-label", t("progress"));
+  if ($("name-error").textContent) $("name-error").textContent = t("nameErr");
+  if (status) $("status").textContent = t(status);
+  if (i !== undefined && i < TRIALS.length) $("count").textContent = t("count", { i: i + 1, n: TRIALS.length });
+}
+for (const b of document.querySelectorAll("[data-lang]"))
+  b.onclick = () => { lang = b.dataset.lang; localStorage.setItem("armonia_lang", lang); render(); };
+
+function save() { localStorage.setItem(key, JSON.stringify(votes)); }
+function setStatus(s) { status = s; $("status").textContent = t(s); $("retry").hidden = s !== "failed"; }
+
+function show(k) {
+  i = k;
+  const end = i >= TRIALS.length;
+  $("trial").hidden = end;
+  $("lang").hidden = !end;   // niente cambio lingua durante le prove
+  $("done").hidden = !end;
+  if (end) { submit(); return; }
+  const [id, l, r] = TRIALS[i];
+  $("left").style.background = l;
+  $("right").style.background = r;
+  $("count").textContent = t("count", { i: i + 1, n: TRIALS.length });
+  $("progress-fill").style.width = `${100 * i / TRIALS.length}%`;
+  $("progress").setAttribute("aria-valuenow", i);
+  for (const b of scaleButtons) b.setAttribute("aria-pressed", String(votes[id] === +b.dataset.v));
+  $("back").disabled = i === 0;
+}
+
+function submit() {
+  const missing = TRIALS.findIndex(tr => !(tr[0] in votes));
+  if (missing !== -1) { show(missing); return; }
+  if (!SUBMIT_URL) { setStatus("manual"); return; }
+  const payload = JSON.stringify({ name, lang, votes: TRIALS.map(tr => [tr[0], votes[tr[0]]]) });
+  if (localStorage.getItem(key + "_sent") === payload) { setStatus("sent"); return; }  // già inviato, voti invariati
+  setStatus("sending");
+  // text/plain evita il preflight CORS, che Apps Script non gestisce
+  fetch(SUBMIT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: payload })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.ok) throw new Error(res.error);
+      localStorage.setItem(key + "_sent", payload);
+      setStatus("sent");
+    })
+    .catch(() => setStatus("failed"));
+}
+
+$("start").onclick = () => {
+  name = $("name").value.trim().replace(/[^\p{L}\p{N}_-]+/gu, "_");
+  if (!name) { $("name-error").textContent = t("nameErr"); $("name").focus(); return; }
+  key = "armonia_" + name;
+  votes = JSON.parse(localStorage.getItem(key) || "{}");
+  $("intro").hidden = true;
+  const first = TRIALS.findIndex(tr => !(tr[0] in votes));   // riprende dalla prima coppia senza voto
+  show(first === -1 ? TRIALS.length : first);
+};
+$("name").addEventListener("keydown", e => { if (e.key === "Enter") $("start").click(); });
+$("back").onclick = () => show(i - 1);
+$("review").onclick = () => show(TRIALS.length - 1);
+$("retry").onclick = submit;
+$("download").onclick = () => {
+  const csv = "id,voto\n" + TRIALS.map(tr => `${tr[0]},${votes[tr[0]]}`).join("\n") + "\n";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = name + ".csv";
+  a.click();
+};
+render();
+</script>
+</body>
+</html>
