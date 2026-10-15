@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Questi due colori stanno bene insieme?</title>
+<title>Sopra e sotto: stanno bene insieme?</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='8' height='16' fill='%23333'/%3E%3Crect x='8' width='8' height='16' fill='%23ccc'/%3E%3C/svg%3E">
 <style>
   /*
@@ -33,6 +33,7 @@
 
   h1 { font: 600 clamp(1.6rem, 3.2vw, 2.2rem)/1.15 var(--display); letter-spacing: -0.01em; margin: 0 0 20px; }
   p { margin: 0 0 14px; max-width: 64ch; }
+  svg.icon { width: 22px; height: 22px; fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; flex: none; }
 
   button {
     font: 500 .95rem/1.2 var(--font); color: var(--ink); cursor: pointer;
@@ -53,6 +54,8 @@
 
   /* Intro */
   .intro { display: grid; grid-template-columns: 1fr 260px; gap: 48px; align-items: start; }
+  .legend { display: flex; gap: 24px; margin: 4px 0 18px; flex-wrap: wrap; }
+  .legend span { display: flex; align-items: center; gap: 8px; }
   .notes { border-top: 2px solid var(--ink); padding-top: 12px; font-size: .9rem; }
   .notes h2 { font: 600 .95rem/1.3 var(--font); margin: 0 0 6px; }
   .notes ul { margin: 0 0 16px; padding-left: 18px; }
@@ -62,38 +65,43 @@
   .error { font-size: .9rem; min-height: 1.4em; margin-top: 8px; }
 
   /* Prova */
-  .progress { height: 3px; background: rgba(0,0,0,.18); margin-bottom: 36px; }
+  .progress { height: 3px; background: rgba(0,0,0,.18); margin-bottom: 28px; }
   .progress span { display: block; height: 100%; background: var(--ink); width: 0; transition: width .2s ease-out; }
-  .pair { display: flex; justify-content: center; margin-bottom: 40px; }
-  .pair div { width: min(34vw, 38vh); aspect-ratio: 1; }
+  .pair { display: flex; justify-content: center; margin-bottom: 32px; }
+  .pair figure { margin: 0; }
+  .pair figcaption { display: flex; justify-content: center; align-items: center; gap: 8px; height: 34px; font-size: .9rem; }
+  .swatch { width: min(34vw, 36vh); aspect-ratio: 1; }
 
-  .scale { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .side h2 { font: 600 .95rem/1.3 var(--font); margin: 0 0 8px; }
-  .side.pos h2 { text-align: right; }
-  .seg { display: grid; grid-template-columns: repeat(5, minmax(max-content, 1fr)); border: 1px solid var(--rule); border-radius: 2px; }
-  .seg button { border: 0; border-radius: 0; padding: 14px 6px; font-size: .82rem; white-space: nowrap; }
-  .seg button + button { border-left: 1px solid var(--rule); }
-  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper-hi); }
+  .ask { font: 600 1.05rem/1.3 var(--font); margin: 0 0 10px; }
+  /* Una sola scala ordinata, dal peggio (sinistra) al meglio (destra); il filetto spesso separa male/bene */
+  .scale { display: grid; grid-template-columns: repeat(10, 1fr); border: 1px solid var(--rule); border-radius: 2px; }
+  .scale button { border: 0; border-radius: 0; padding: 12px 4px; min-height: 58px; font-size: .8rem; }
+  .scale button + button { border-left: 1px solid var(--rule); }
+  .scale button.mid { border-left: 2px solid var(--ink); }
+  .scale button[aria-pressed="true"] { background: var(--ink); color: var(--paper-hi); }
 
-  .bar { display: flex; justify-content: space-between; align-items: center; margin-top: 26px; font-size: .9rem; }
+  .bar { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; font-size: .9rem; }
 
   @media (max-width: 720px) {
     .intro { grid-template-columns: 1fr; gap: 24px; }
     main { padding-top: 16px; }
-    .progress { margin-bottom: 24px; }
-    .pair { margin-bottom: 24px; }
-    .pair div { width: min(42vw, 30vh); }
-    /* su mobile: due colonne verticali, "Appena" in alto, "Estremamente" in basso */
-    .seg { display: flex; flex-direction: column; }
-    .neg .seg { flex-direction: column-reverse; }
-    .seg button { padding: 12px 6px; }
-    .seg button + button { border-left: 0; border-top: 1px solid var(--rule); }
-    .neg .seg button + button { border-top: 0; border-bottom: 1px solid var(--rule); }
+    .progress { margin-bottom: 16px; }
+    .pair { margin-bottom: 16px; }
+    .swatch { width: min(40vw, 22vh); }
+    /* su mobile: elenco verticale, "benissimo" in alto e "malissimo" in basso */
+    .scale { display: flex; flex-direction: column-reverse; }
+    .scale button { min-height: 0; padding: 10px 6px; font-size: .9rem; }
+    .scale button + button { border-left: 0; border-bottom: 1px solid var(--rule); }
+    .scale button.mid { border-left: 0; border-bottom: 2px solid var(--ink); }
   }
   @media (prefers-reduced-motion: reduce) { .progress span { transition: none; } }
 </style>
 </head>
 <body>
+<svg hidden>
+  <symbol id="i-top" viewBox="0 0 24 24"><path d="M8.5 3 4 5 1.5 9.5l3.5 1.5L6 9.5V21h12V9.5l1 1.5 3.5-1.5L20 5l-4.5-2c-.6 1.6-2 2.5-3.5 2.5S9.1 4.6 8.5 3z"/></symbol>
+  <symbol id="i-bottom" viewBox="0 0 24 24"><path d="M6 3h12l1.5 18h-5L12 9.5 9.5 21h-5z"/></symbol>
+</svg>
 <main>
   <nav class="lang" id="lang" aria-label="Lingua / Language">
     <button data-lang="it" lang="it">Italiano</button>
@@ -104,6 +112,10 @@
     <div>
       <h1 data-t="title"></h1>
       <p data-t="lead1"></p>
+      <div class="legend" aria-hidden="true">
+        <span><svg class="icon"><use href="#i-top"/></svg><span data-t="topLong"></span></span>
+        <span><svg class="icon"><use href="#i-bottom"/></svg><span data-t="bottomLong"></span></span>
+      </div>
       <p data-t="lead2"></p>
       <div class="start">
         <label for="name"><span data-t="nameLabel"></span>
@@ -116,8 +128,6 @@
     <aside class="notes">
       <h2 data-t="beforeH"></h2>
       <ul data-t="before"></ul>
-      <h2 data-t="howH"></h2>
-      <p data-t="how"></p>
       <p data-t="resume"></p>
       <h2 data-t="privacyH"></h2>
       <p data-t="privacy"></p>
@@ -126,11 +136,12 @@
 
   <section id="trial" hidden>
     <div class="progress" role="progressbar" aria-valuemin="0" id="progress"><span id="progress-fill"></span></div>
-    <div class="pair" role="img" id="pair"><div id="left"></div><div id="right"></div></div>
-    <div class="scale">
-      <div class="side neg"><h2 data-t="neg"></h2><div class="seg" id="neg"></div></div>
-      <div class="side pos"><h2 data-t="pos"></h2><div class="seg" id="pos"></div></div>
+    <div class="pair" role="img" id="pair">
+      <figure><figcaption><svg class="icon"><use href="#i-top"/></svg><span data-t="top"></span></figcaption><div class="swatch" id="left"></div></figure>
+      <figure><figcaption><svg class="icon"><use href="#i-bottom"/></svg><span data-t="bottom"></span></figcaption><div class="swatch" id="right"></div></figure>
     </div>
+    <p class="ask" id="ask" data-t="ask"></p>
+    <div class="scale" id="scale" role="group" aria-labelledby="ask"></div>
     <div class="bar">
       <button id="back" class="link" data-t="back"></button>
       <span id="count" aria-live="polite"></span>
@@ -148,29 +159,30 @@
   </section>
 </main>
 <script>
-const TRIALS = [["001", "#1F5F66", "#5A3A22"], ["002", "#C0272D", "#EFE6D2"], ["003", "#3C3C3C", "#6D1A2A"], ["004", "#EFE6D2", "#5E6B3A"], ["005", "#D8C3A5", "#5A3A22"], ["006", "#111111", "#3C3C3C"], ["007", "#EFE6D2", "#A7C7E7"], ["008", "#1F2A44", "#EFE6D2"], ["009", "#BEBEBE", "#A7C7E7"], ["010", "#5E6B3A", "#5A3A22"], ["011", "#EFE6D2", "#E8B4C0"], ["012", "#5E6B3A", "#6D1A2A"], ["013", "#5A3A22", "#D4A62A"], ["014", "#C0272D", "#5E6B3A"], ["015", "#2E5E3E", "#E8B4C0"], ["016", "#E8B4C0", "#B4532A"], ["017", "#EFE6D2", "#6D1A2A"], ["018", "#1F5F66", "#C19A6B"], ["019", "#B4532A", "#F5F5F2"], ["020", "#3B5B85", "#5A3A22"], ["021", "#D4A62A", "#111111"], ["022", "#3B5B85", "#F5F5F2"], ["023", "#A7C7E7", "#E8B4C0"], ["024", "#C0272D", "#F5F5F2"], ["025", "#5E6B3A", "#3C3C3C"], ["026", "#3C3C3C", "#111111"], ["027", "#F5F5F2", "#5B3A6B"], ["028", "#3C3C3C", "#EFE6D2"], ["029", "#6D1A2A", "#1F5F66"], ["030", "#F5F5F2", "#3C3C3C"], ["031", "#111111", "#1F5F66"], ["032", "#B4532A", "#C19A6B"], ["033", "#3C3C3C", "#5B3A6B"], ["034", "#D4A62A", "#BEBEBE"], ["035", "#1F5F66", "#2E5E3E"], ["036", "#5B3A6B", "#5A3A22"], ["037", "#A7C7E7", "#6D1A2A"], ["038", "#D4A62A", "#1F5F66"], ["039", "#E8B4C0", "#1F5F66"], ["040", "#2E5E3E", "#D8C3A5"], ["041", "#3C3C3C", "#E8B4C0"], ["042", "#1F5F66", "#6D1A2A"], ["043", "#6D1A2A", "#D4A62A"], ["044", "#D8C3A5", "#B4532A"], ["045", "#D8C3A5", "#3C3C3C"], ["046", "#E8B4C0", "#6D1A2A"], ["047", "#2E5E3E", "#D4A62A"], ["048", "#F5F5F2", "#EFE6D2"], ["049", "#E8B4C0", "#EFE6D2"], ["050", "#F5F5F2", "#E8B4C0"], ["051", "#B4532A", "#3B5B85"], ["052", "#111111", "#BEBEBE"], ["053", "#3C3C3C", "#C0272D"], ["054", "#5E6B3A", "#EFE6D2"], ["055", "#C19A6B", "#6D1A2A"], ["056", "#1F5F66", "#D4A62A"], ["057", "#E8B4C0", "#D8C3A5"], ["058", "#F5F5F2", "#2E5E3E"], ["059", "#111111", "#2E5E3E"], ["060", "#2E5E3E", "#1F2A44"], ["061", "#3B5B85", "#1F2A44"], ["062", "#3B5B85", "#6D1A2A"], ["063", "#1F5F66", "#B4532A"], ["064", "#5A3A22", "#1F5F66"], ["065", "#2E5E3E", "#3B5B85"], ["066", "#1F2A44", "#D8C3A5"]];
+const TRIALS = [["001", "#5A3A22", "#1F5F66"], ["002", "#C0272D", "#EFE6D2"], ["003", "#3C3C3C", "#6D1A2A"], ["004", "#EFE6D2", "#5E6B3A"], ["005", "#D8C3A5", "#5A3A22"], ["006", "#111111", "#3C3C3C"], ["007", "#EFE6D2", "#A7C7E7"], ["008", "#1F2A44", "#EFE6D2"], ["009", "#BEBEBE", "#A7C7E7"], ["010", "#5E6B3A", "#5A3A22"], ["011", "#EFE6D2", "#E8B4C0"], ["012", "#5E6B3A", "#6D1A2A"], ["013", "#5A3A22", "#D4A62A"], ["014", "#C0272D", "#5E6B3A"], ["015", "#2E5E3E", "#E8B4C0"], ["016", "#E8B4C0", "#B4532A"], ["017", "#EFE6D2", "#6D1A2A"], ["018", "#1F5F66", "#C19A6B"], ["019", "#B4532A", "#F5F5F2"], ["020", "#3B5B85", "#5A3A22"], ["021", "#D4A62A", "#111111"], ["022", "#3B5B85", "#F5F5F2"], ["023", "#A7C7E7", "#E8B4C0"], ["024", "#C0272D", "#F5F5F2"], ["025", "#5E6B3A", "#3C3C3C"], ["026", "#111111", "#3C3C3C"], ["027", "#F5F5F2", "#5B3A6B"], ["028", "#3C3C3C", "#EFE6D2"], ["029", "#1F5F66", "#6D1A2A"], ["030", "#F5F5F2", "#3C3C3C"], ["031", "#111111", "#1F5F66"], ["032", "#B4532A", "#C19A6B"], ["033", "#3C3C3C", "#5B3A6B"], ["034", "#D4A62A", "#BEBEBE"], ["035", "#1F5F66", "#2E5E3E"], ["036", "#5B3A6B", "#5A3A22"], ["037", "#A7C7E7", "#6D1A2A"], ["038", "#D4A62A", "#1F5F66"], ["039", "#E8B4C0", "#1F5F66"], ["040", "#2E5E3E", "#D8C3A5"], ["041", "#3C3C3C", "#E8B4C0"], ["042", "#1F5F66", "#6D1A2A"], ["043", "#6D1A2A", "#D4A62A"], ["044", "#D8C3A5", "#B4532A"], ["045", "#D8C3A5", "#3C3C3C"], ["046", "#E8B4C0", "#6D1A2A"], ["047", "#2E5E3E", "#D4A62A"], ["048", "#F5F5F2", "#EFE6D2"], ["049", "#EFE6D2", "#E8B4C0"], ["050", "#F5F5F2", "#E8B4C0"], ["051", "#B4532A", "#3B5B85"], ["052", "#111111", "#BEBEBE"], ["053", "#3C3C3C", "#C0272D"], ["054", "#EFE6D2", "#5E6B3A"], ["055", "#C19A6B", "#6D1A2A"], ["056", "#D4A62A", "#1F5F66"], ["057", "#E8B4C0", "#D8C3A5"], ["058", "#F5F5F2", "#2E5E3E"], ["059", "#111111", "#2E5E3E"], ["060", "#2E5E3E", "#1F2A44"], ["061", "#3B5B85", "#1F2A44"], ["062", "#3B5B85", "#6D1A2A"], ["063", "#1F5F66", "#B4532A"], ["064", "#5A3A22", "#1F5F66"], ["065", "#2E5E3E", "#3B5B85"], ["066", "#1F2A44", "#D8C3A5"]];
 const SUBMIT_URL = "https://script.google.com/macros/s/AKfycby2PCSrR5DHhyDoQcKBDFWrvCKLniNqx6hqSPOjyHPtSbC8WWzy6igZUo7tMnB9ZONP/exec";   // app web Google Apps Script; vuoto = solo download
 const $ = id => document.getElementById(id);
 
 const TEXT = {
   it: {
-    title: "Questi due colori stanno bene insieme?",
-    lead1: "Ti mostreremo <b>{n}</b> coppie di colori, una alla volta, come due capi d'abbigliamento accostati. Per ognuna dicci quanto la trovi <b>armoniosa</b>, cioè quanto i due colori, insieme, danno un effetto gradevole.",
-    lead2: "Giudica la coppia, non il colore che ti piace di più. Non ci sono risposte giuste: rispondi d'istinto, in pochi secondi. In tutto servono circa {m} minuti.",
+    title: "Sopra e sotto: stanno bene insieme?",
+    lead1: "Vedrai <b>{n}</b> abbinamenti di colori, uno alla volta. A sinistra c'è il colore della parte di sopra, a destra quello della parte di sotto.",
+    topLong: "Sopra: maglia, camicia, giacca", bottomLong: "Sotto: pantaloni, gonna",
+    lead2: "Per ogni abbinamento scegli quanto sta bene, da <i>malissimo</i> a <i>benissimo</i>. Giudica l'abbinamento anche se non è il tuo stile. Non c'è una risposta di mezzo: rispondi d'istinto. Servono circa {m} minuti.",
     nameLabel: "Un soprannome o le tue iniziali",
     start: "Inizia",
     nameErr: "Scrivi un soprannome per iniziare.",
     beforeH: "Prima di iniziare",
     before: "<li>Luminosità dello schermo alta</li><li>Filtro luce blu, modalità notte e True Tone spenti</li><li>Meglio un computer che il telefono</li>",
-    howH: "Come si risponde",
-    how: "La scala ha due lati, <i>stonano</i> e <i>stanno bene</i>, con cinque gradi ciascuno. Non c'è una risposta neutra: scegli sempre un lato.",
-    resume: "Puoi chiudere e riprendere più tardi: le risposte restano salvate in questo browser.",
+    resume: "Puoi fermarti e riprendere più tardi da questo browser.",
     privacyH: "Dati raccolti",
-    privacy: "Solo il soprannome e i voti, usati a scopo di ricerca. Non scrivere il tuo nome completo.",
-    neg: "Stonano", pos: "Stanno bene",
-    grades: ["Appena", "Leggermente", "Abbastanza", "Molto", "Estremamente"],
-    pair: "Coppia di colori", progress: "Avanzamento",
-    back: "Coppia precedente",
+    privacy: "Solo il soprannome e le risposte, a scopo di ricerca. Non scrivere il tuo nome completo.",
+    top: "Sopra", bottom: "Sotto",
+    ask: "Questo abbinamento sta…",
+    scale: ["malissimo", "molto male", "male", "abbastanza male", "un po' male",
+            "un po' bene", "abbastanza bene", "bene", "molto bene", "benissimo"],
+    pair: "Abbinamento: colore sopra e colore sotto", progress: "Avanzamento",
+    back: "Abbinamento precedente",
     count: "{i} di {n}",
     doneH: "Finito. Grazie!",
     sending: "Invio delle risposte in corso…",
@@ -179,26 +191,27 @@ const TEXT = {
     manual: "Scarica il file con le tue risposte e mandalo a chi ti ha inviato il link.",
     retry: "Riprova l'invio",
     download: "Scarica le risposte",
-    review: "Rivedi l'ultima coppia",
+    review: "Rivedi l'ultimo abbinamento",
   },
   en: {
-    title: "Do these two colours go well together?",
-    lead1: "You will see <b>{n}</b> pairs of colours, one at a time, like two pieces of clothing worn together. For each pair, tell us how <b>harmonious</b> it looks: how pleasant the two colours are together.",
-    lead2: "Judge the pair, not which colour you like more. There are no right answers: go with your first impression, in a few seconds. It takes about {m} minutes in total.",
+    title: "Top and bottom: do they go together?",
+    lead1: "You'll see <b>{n}</b> colour combinations, one at a time. The colour on the left is the top, the one on the right is the bottom.",
+    topLong: "Top: T-shirt, shirt, jacket", bottomLong: "Bottom: trousers, skirt",
+    lead2: "For each one, pick how good it looks, from <i>awful</i> to <i>great</i>. Judge the combination even if it isn't your style. There's no middle option: go with your first impression. It takes about {m} minutes.",
     nameLabel: "A nickname or your initials",
     start: "Start",
     nameErr: "Enter a nickname to start.",
     beforeH: "Before you start",
     before: "<li>Screen brightness up</li><li>Blue-light filter, night mode and True Tone off</li><li>A computer works better than a phone</li>",
-    howH: "How to answer",
-    how: "The scale has two sides, <i>clash</i> and <i>go well</i>, with five levels each. There is no neutral answer: always pick a side.",
-    resume: "You can close the page and continue later: your answers stay saved in this browser.",
+    resume: "You can stop and continue later in this browser.",
     privacyH: "What we collect",
-    privacy: "Only your nickname and your ratings, for research purposes. Please don't use your full name.",
-    neg: "Clash", pos: "Go well",
-    grades: ["Barely", "Slightly", "Fairly", "Very", "Extremely"],
-    pair: "Colour pair", progress: "Progress",
-    back: "Previous pair",
+    privacy: "Only your nickname and your answers, for research purposes. Please don't use your full name.",
+    top: "Top", bottom: "Bottom",
+    ask: "This combination looks…",
+    scale: ["awful", "very bad", "bad", "fairly bad", "slightly bad",
+            "slightly good", "fairly good", "good", "very good", "great"],
+    pair: "Combination: top colour and bottom colour", progress: "Progress",
+    back: "Previous combination",
     count: "{i} of {n}",
     doneH: "Done. Thank you!",
     sending: "Sending your answers…",
@@ -207,7 +220,7 @@ const TEXT = {
     manual: "Download the file with your answers and send it to whoever shared this link with you.",
     retry: "Try again",
     download: "Download answers",
-    review: "Review the last pair",
+    review: "Review the last combination",
   },
 };
 let lang = localStorage.getItem("armonia_lang") || (navigator.language.startsWith("it") ? "it" : "en");
@@ -222,15 +235,15 @@ if (!TRIALS.length) {
 }
 
 // Valori come in Ou & Luo (2006): −5…−1 disarmonico, +1…+5 armonico, niente zero.
-// Intensità crescente verso l'esterno: Estremamente … Appena | Appena … Estremamente
-const scaleButtons = [];
-for (const v of [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]) {
+const VALUES = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
+const scaleButtons = VALUES.map(v => {
   const b = document.createElement("button");
   b.dataset.v = v;
+  if (v === 1) b.className = "mid";
   b.onclick = () => { votes[TRIALS[i][0]] = v; save(); show(i + 1); };
-  $(v < 0 ? "neg" : "pos").append(b);
-  scaleButtons.push(b);
-}
+  $("scale").append(b);
+  return b;
+});
 
 function render() {
   document.documentElement.lang = lang;
@@ -238,11 +251,7 @@ function render() {
   const vars = { n: TRIALS.length, m: Math.max(1, Math.round(TRIALS.length * 6 / 60)) };
   for (const el of document.querySelectorAll("[data-t]")) el.innerHTML = t(el.dataset.t, vars);
   for (const b of document.querySelectorAll("[data-lang]")) b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
-  for (const b of scaleButtons) {
-    const v = +b.dataset.v;
-    b.textContent = TEXT[lang].grades[Math.abs(v) - 1];
-    b.setAttribute("aria-label", `${b.textContent} — ${t(v < 0 ? "neg" : "pos")}`);
-  }
+  scaleButtons.forEach((b, k) => { b.textContent = TEXT[lang].scale[k]; });
   $("pair").setAttribute("aria-label", t("pair"));
   $("progress").setAttribute("aria-label", t("progress"));
   if ($("name-error").textContent) $("name-error").textContent = t("nameErr");
@@ -262,9 +271,9 @@ function show(k) {
   $("lang").hidden = !end;   // niente cambio lingua durante le prove
   $("done").hidden = !end;
   if (end) { submit(); return; }
-  const [id, l, r] = TRIALS[i];
-  $("left").style.background = l;
-  $("right").style.background = r;
+  const [id, top, bottom] = TRIALS[i];
+  $("left").style.background = top;
+  $("right").style.background = bottom;
   $("count").textContent = t("count", { i: i + 1, n: TRIALS.length });
   $("progress-fill").style.width = `${100 * i / TRIALS.length}%`;
   $("progress").setAttribute("aria-valuenow", i);
@@ -296,7 +305,7 @@ $("start").onclick = () => {
   key = "armonia_" + name;
   votes = JSON.parse(localStorage.getItem(key) || "{}");
   $("intro").hidden = true;
-  const first = TRIALS.findIndex(tr => !(tr[0] in votes));   // riprende dalla prima coppia senza voto
+  const first = TRIALS.findIndex(tr => !(tr[0] in votes));   // riprende dal primo abbinamento senza voto
   show(first === -1 ? TRIALS.length : first);
 };
 $("name").addEventListener("keydown", e => { if (e.key === "Enter") $("start").click(); });
